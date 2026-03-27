@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .dashboard-card {
+            max-width: 900px;
+            margin: 40px auto;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .title {
+            color: #4e73df;
+            font-weight: bold;
+        }
+
+        .action-card {
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card shadow dashboard-card">
+        <h2 class="text-center title mb-4">Admin Dashboard</h2>
+        <p class="text-center mb-4">Welcome Admin. Manage courses and teachers here.</p>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm action-card p-3 text-center">
+                    <h5>Add Course</h5>
+                    <p>Create short courses like Python, MySQL, QuickBooks, Excel.</p>
+                    <a href="{{ url_for('add_course') }}" class="btn btn-primary">Open</a>
+                    <a href="{{ url_for('add_module') }}" class="btn btn-warning">Add Module</a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm action-card p-3 text-center">
+                    <h5>Add Teacher</h5>
+                    <p>Create teacher accounts so they can add lessons.</p>
+                    <a href="{{ url_for('add_teacher') }}" class="btn btn-success">Open</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

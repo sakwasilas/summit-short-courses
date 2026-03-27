@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Lesson</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .lesson-card {
+            max-width: 950px;
+            margin: 40px auto;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .lesson-title {
+            color: #4e73df;
+            font-weight: bold;
+        }
+
+        .content-box {
+            white-space: pre-line;
+            line-height: 1.8;
+            color: #444;
+            font-size: 16px;
+        }
+
+        .task-box {
+            background-color: #f8f9fa;
+            border-left: 5px solid #4e73df;
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card shadow lesson-card">
+        <h2 class="lesson-title">{{ lesson.lesson_order }}. {{ lesson.title }}</h2>
+        <p><strong>Course:</strong> {{ lesson.module.course.name }}</p>
+        <p><strong>Module:</strong> {{ lesson.module.name }}</p>
+        <p><strong>Added On:</strong> {{ lesson.created_at.strftime("%Y-%m-%d") }}</p>
+
+        <hr>
+
+        <div class="content-box">
+            {{ lesson.content }}
+        </div>
+
+        <hr>
+
+        <h5>Practical Task</h5>
+        <div class="task-box">
+            {{ lesson.practical_task if lesson.practical_task else "No practical task added yet." }}
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <div>
+                {% if previous_lesson %}
+                    <a href="{{ url_for('view_lesson', lesson_id=previous_lesson.id) }}" class="btn btn-secondary">
+                        Previous
+                    </a>
+                {% endif %}
+            </div>
+
+            <div>
+                <a href="{{ url_for('view_module_lessons', module_id=lesson.module.id) }}" class="btn btn-dark">
+                    Back to Module
+                </a>
+
+                {% if next_lesson %}
+                    <a href="{{ url_for('view_lesson', lesson_id=next_lesson.id) }}" class="btn btn-primary">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
