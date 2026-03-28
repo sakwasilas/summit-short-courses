@@ -3,98 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ lesson.title }}</title>
+    <title>Lesson View</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
-        body { background: #f5f6fa; font-family: Arial, sans-serif; }
-        .container { max-width: 1000px; margin-top: 30px; }
-        .lesson-card { background: #fff; border-radius: 10px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-        .lesson-title { font-size: 28px; color: #1697da; font-weight: bold; margin-bottom: 20px; }
-        .chapter-title { font-size: 22px; color: #2d3436; margin-top: 25px; margin-bottom: 10px; }
-        .lesson-content { line-height: 1.8; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        table, th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background: #f1f2f6; }
-        img { max-width: 100%; margin: 15px 0; }
-        .sidebar { background: #f1f2f6; padding: 15px; border-radius: 10px; }
-        .menu-link { display: block; padding: 8px 12px; margin-bottom: 5px; background: #fff; border-radius: 6px; text-decoration: none; color: #2d3436; }
-        .menu-link.active { background: #1697da; color: #fff; }
+        body {
+            margin: 0;
+            background: #f3f3f3;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        .top-header {
+            background: #ffffff;
+            border-bottom: 1px solid #dcdcdc;
+            padding: 20px 30px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .page-wrapper {
+            display: flex;
+            gap: 20px;
+            padding: 30px 20px;
+        }
+
+        .sidebar {
+            width: 120px;
+        }
+
+        .menu-btn {
+            background: #1296c9;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .menu-panel {
+            display: none;
+            margin-top: 12px;
+            background: white;
+            border: 1px solid #dcdcdc;
+            border-radius: 6px;
+            width: 250px;
+        }
+
+        .menu-panel.show {
+            display: block;
+        }
+
+        .menu-link {
+            display: block;
+            padding: 10px 16px;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #efefef;
+        }
+
+        .menu-link.active {
+            background: #1296c9;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .lesson-card {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #dcdcdc;
+        }
+
+        .lesson-body {
+            padding: 30px;
+        }
+
+        .chapter-title {
+            color: #1697da;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .lesson-content {
+            line-height: 1.8;
+            white-space: pre-line;
+            transition: opacity 0.3s ease;
+        }
     </style>
 </head>
 <body>
 
-<div class="container d-flex gap-4">
+<div class="top-header">
+    {{ lesson.module.course.name }}
+</div>
 
-    <!-- Sidebar: Lessons -->
-    <div class="sidebar flex-shrink-0" style="width:250px;">
-        <h5>Lessons Menu</h5>
-        {% for item in modules_with_lessons %}
-            <strong>{{ item.module.name }}</strong>
-            {% for l in item.lessons %}
-                <a href="{{ url_for('view_lesson', lesson_id=l.id) }}"
-                   class="menu-link {% if l.id == lesson.id %}active{% endif %}">
-                    {{ l.title }}
-                </a>
+<div class="page-wrapper">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <button class="menu-btn" onclick="toggleMenu()">Menu</button>
+
+        <div class="menu-panel" id="menuPanel">
+            {% for item in modules_with_lessons %}
+                {% for l in item.lessons %}
+                    <a href="{{ url_for('view_lesson', lesson_id=l.id) }}"
+                       class="menu-link {% if l.id == lesson.id %}active{% endif %}">
+                        {{ l.title }}
+                    </a>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-grow-1">
-        <div class="lesson-card">
+    <!-- Main -->
+    <div class="main-content">
+        <div class="content-wrapper">
 
-            <!-- Lesson Title -->
-            <div class="lesson-title">{{ lesson.title }}</div>
+            <h4>{{ lesson.title }}</h4>
 
-            <!-- Introduction -->
-            <div class="chapter-title">Introduction</div>
-            <div class="lesson-content">
-                <p><strong>Course Title:</strong> Introduction to Python Programming</p>
-                <p><strong>Instructor:</strong> SILAS SAKWA</p>
-                <p><strong>Course Objectives:</strong></p>
-                <ol>
-                    <li>Understand what Python is and why it is useful.</li>
-                    <li>Learn the basic syntax and structure of Python programs.</li>
-                </ol>
-            </div>
+            <div class="lesson-card">
+                <div class="lesson-body">
 
-            <!-- Practical Task -->
-            {% if lesson.practical_task %}
-            <div class="chapter-title">Practical Task</div>
-            <div class="lesson-content">
-                {{ lesson.practical_task | safe }}
-            </div>
-            {% endif %}
+                    <!-- Dynamic Title -->
+                    <div class="chapter-title" id="chapterTitle"></div>
 
-            <!-- Chapters -->
-            {% if lesson_data and lesson_data.chapters %}
-                {% for chapter in lesson_data.chapters %}
-                    <div class="chapter-title">{{ chapter.title }}</div>
-                    <div class="lesson-content">
-                        {{ chapter.content | safe }}
+                    <!-- Dynamic Content -->
+                    <div class="lesson-content" id="lessonContent"></div>
+
+                    <!-- Progress -->
+                    <div class="text-muted mt-3" id="progressText"></div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-secondary" onclick="prevStep()" id="prevBtn">Previous</button>
+                        <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
                     </div>
-                {% endfor %}
-            {% endif %}
 
-            <!-- Navigation Buttons -->
-            <div class="d-flex justify-content-between mt-4">
-                {% if previous_lesson %}
-                    <a href="{{ url_for('view_lesson', lesson_id=previous_lesson.id) }}" class="btn btn-secondary">Previous</a>
-                {% else %}
-                    <button class="btn btn-secondary" disabled>Previous</button>
-                {% endif %}
-
-                {% if next_lesson %}
-                    <a href="{{ url_for('view_lesson', lesson_id=next_lesson.id) }}" class="btn btn-primary">Next</a>
-                {% else %}
-                    <button class="btn btn-primary" disabled>Next</button>
-                {% endif %}
+                </div>
             </div>
 
         </div>
     </div>
 
 </div>
+
+<!-- ✅ CORRECT DATA SOURCE -->
+<script>
+    const lessonData = {{ lesson_data | tojson }};
+    const practicalTask = {{ lesson.practical_task | tojson }};
+</script>
+
+<!-- UI Script -->
+<script>
+    function toggleMenu() {
+        document.getElementById("menuPanel").classList.toggle("show");
+    }
+
+    let steps = [];
+    let currentStep = 0;
+
+    function buildSteps() {
+        steps = [
+            {
+                title: "Introduction",
+                content: lessonData.introduction
+            },
+            {
+                title: "Course Outline",
+                content: lessonData.outline
+            },
+            ...lessonData.chapters.map(ch => ({
+                title: ch.title,
+                content: ch.content
+            }))
+        ];
+
+        // ✅ Add practical task as last step (if exists)
+        if (practicalTask) {
+            steps.push({
+                title: "Practical Task",
+                content: practicalTask
+            });
+        }
+    }
+
+    function renderStep() {
+        document.getElementById("chapterTitle").innerText = steps[currentStep].title;
+        document.getElementById("lessonContent").innerText = steps[currentStep].content;
+
+        document.getElementById("progressText").innerText =
+            `Step ${currentStep + 1} of ${steps.length}`;
+
+        document.getElementById("prevBtn").disabled = currentStep === 0;
+        document.getElementById("nextBtn").disabled = currentStep === steps.length - 1;
+    }
+
+    function nextStep() {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            renderStep();
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 0) {
+            currentStep--;
+            renderStep();
+        }
+    }
+
+    buildSteps();
+    renderStep();
+</script>
 
 </body>
 </html>
