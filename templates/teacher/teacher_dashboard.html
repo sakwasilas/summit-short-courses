@@ -22,6 +22,11 @@
             color: #198754;
             font-weight: bold;
         }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -29,7 +34,7 @@
 <div class="container">
     <div class="card shadow dashboard-card">
         <h2 class="text-center title mb-4">Teacher Dashboard</h2>
-        <p class="text-center">Select a module and add lessons.</p>
+        <p class="text-center">Select a module and upload lessons.</p>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -55,8 +60,8 @@
                     <td>{{ module.name }}</td>
                     <td>{{ module.course.name }}</td>
                     <td>
-                        <a href="{{ url_for('add_lesson', module_id=module.id) }}" class="btn btn-success btn-sm">
-                            Add Lesson
+                        <a href="{{ url_for('upload_lesson', module_id=module.id) }}" class="btn btn-success btn-sm">
+                            Upload Lesson
                         </a>
                     </td>
                 </tr>

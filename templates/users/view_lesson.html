@@ -26,12 +26,15 @@
 
         .page-wrapper {
             display: flex;
-            gap: 20px;
-            padding: 30px 20px;
+            gap: 28px;
+            padding: 28px 36px;
+            align-items: flex-start;
         }
 
         .sidebar {
             width: 120px;
+            flex-shrink: 0;
+            position: relative;
         }
 
         .menu-btn {
@@ -49,7 +52,11 @@
             background: white;
             border: 1px solid #dcdcdc;
             border-radius: 6px;
-            width: 250px;
+            width: 260px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            z-index: 20;
+            position: absolute;
         }
 
         .menu-panel.show {
@@ -62,11 +69,18 @@
             text-decoration: none;
             color: #333;
             border-bottom: 1px solid #efefef;
+            font-size: 14px;
+        }
+
+        .menu-link:hover {
+            background: #eef8fc;
+            color: #1296c9;
         }
 
         .menu-link.active {
             background: #1296c9;
             color: white;
+            font-weight: 600;
         }
 
         .main-content {
@@ -77,30 +91,181 @@
 
         .content-wrapper {
             width: 100%;
-            max-width: 1000px;
+            max-width: 980px;
+        }
+
+        .lesson-path {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .lesson-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
         }
 
         .lesson-card {
             background: white;
             border-radius: 10px;
-            border: 1px solid #dcdcdc;
+            border: 1px solid #e2e2e2;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+
+        .lesson-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px 0 18px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #b8b8b8;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px 6px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            color: #1296c9;
+        }
+
+        .nav-btn:disabled {
+            color: #dddddd;
+            cursor: not-allowed;
+        }
+
+        .chapter-tab {
+            height: 3px;
+            width: 120px;
+            background: #1296c9;
+            margin-left: 22px;
+            border-radius: 3px;
+        }
+
+        .progress-wrap {
+            padding: 16px 30px 0 30px;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .progress {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: #1296c9;
+            transition: width 0.3s ease;
         }
 
         .lesson-body {
-            padding: 30px;
+            padding: 24px 30px 32px 30px;
         }
 
         .chapter-title {
             color: #1697da;
             font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
         }
 
         .lesson-content {
-            line-height: 1.8;
-            white-space: pre-line;
-            transition: opacity 0.3s ease;
+            line-height: 1.9;
+            transition: opacity 0.25s ease;
+            font-size: 15px;
+            color: #444;
+            min-height: 220px;
+        }
+
+        .lesson-content p {
+            margin-bottom: 14px;
+        }
+
+        .lesson-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 14px 0;
+        }
+
+        .step-complete-box {
+            margin-top: 24px;
+            padding: 16px 18px;
+            background: #eef9f1;
+            border-left: 4px solid #28a745;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .step-complete-box.show {
+            display: block;
+        }
+
+        .step-complete-title {
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #1f6f35;
+        }
+
+        .bottom-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 992px) {
+            .page-wrapper {
+                flex-direction: column;
+                padding: 20px 15px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .content-wrapper {
+                max-width: 100%;
+            }
+
+            .lesson-body,
+            .progress-wrap {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .menu-panel {
+                position: static;
+                width: 100%;
+            }
+
+            .lesson-content {
+                min-height: auto;
+            }
         }
     </style>
 </head>
@@ -112,9 +277,10 @@
 
 <div class="page-wrapper">
 
-    <!-- Sidebar -->
     <div class="sidebar">
-        <button class="menu-btn" onclick="toggleMenu()">Menu</button>
+        <button class="menu-btn" onclick="toggleMenu()">
+            <i class="bi bi-list"></i> Menu
+        </button>
 
         <div class="menu-panel" id="menuPanel">
             {% for item in modules_with_lessons %}
@@ -128,30 +294,59 @@
         </div>
     </div>
 
-    <!-- Main -->
     <div class="main-content">
         <div class="content-wrapper">
 
-            <h4>{{ lesson.title }}</h4>
+            <div class="lesson-path">{{ lesson.module.name }}</div>
+            <div class="lesson-title">{{ lesson.title }}</div>
 
             <div class="lesson-card">
-                <div class="lesson-body">
 
-                    <!-- Dynamic Title -->
+                <div class="lesson-nav">
+                    <button onclick="prevStep()" id="topPrev" class="nav-btn" type="button">
+                        <i class="bi bi-arrow-left"></i>
+                    </button>
+
+                    <button onclick="nextStep()" id="topNext" class="nav-btn" type="button">
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="chapter-tab"></div>
+
+                <div class="progress-wrap">
+                    <div class="progress-meta">
+                        <span id="progressText">Step 1 of 1</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="lesson-body">
                     <div class="chapter-title" id="chapterTitle"></div>
 
-                    <!-- Dynamic Content -->
                     <div class="lesson-content" id="lessonContent"></div>
 
-                    <!-- Progress -->
-                    <div class="text-muted mt-3" id="progressText"></div>
-
-                    <!-- Buttons -->
-                    <div class="d-flex justify-content-between mt-4">
-                        <button class="btn btn-secondary" onclick="prevStep()" id="prevBtn">Previous</button>
-                        <button class="btn btn-primary" onclick="nextStep()" id="nextBtn">Next</button>
+                    <div id="completeBox" class="step-complete-box">
+                        <div class="step-complete-title">Lesson section completed</div>
+                        <div>You can continue to the next section, or go back to review.</div>
                     </div>
 
+                    <div class="bottom-controls">
+                        <button class="btn btn-light border" onclick="prevStep()" id="prevBtn" type="button">
+                            Previous
+                        </button>
+
+                        <button class="btn btn-primary" onclick="nextStep()" id="nextBtn" type="button">
+                            Continue <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="footer-note" id="footerNote">
+                        Read through the content, then continue.
+                    </div>
                 </div>
             </div>
 
@@ -160,13 +355,13 @@
 
 </div>
 
-<!-- ✅ CORRECT DATA SOURCE -->
 <script>
     const lessonData = {{ lesson_data | tojson }};
-    const practicalTask = {{ lesson.practical_task | tojson }};
+    const practicalTask = {{ practical_task | tojson }};
+    const savedStep = {{ saved_step | default(0) }};
+    const lessonId = {{ lesson.id }};
 </script>
 
-<!-- UI Script -->
 <script>
     function toggleMenu() {
         document.getElementById("menuPanel").classList.toggle("show");
@@ -175,57 +370,162 @@
     let steps = [];
     let currentStep = 0;
 
-    function buildSteps() {
-        steps = [
-            {
-                title: "Introduction",
-                content: lessonData.introduction
-            },
-            {
-                title: "Course Outline",
-                content: lessonData.outline
-            },
-            ...lessonData.chapters.map(ch => ({
-                title: ch.title,
-                content: ch.content
-            }))
-        ];
+    function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.innerText = text;
+        return div.innerHTML;
+    }
 
-        // ✅ Add practical task as last step (if exists)
-        if (practicalTask) {
+    function buildSteps() {
+        steps = [];
+
+        if (lessonData.introduction && lessonData.introduction.blocks && lessonData.introduction.blocks.length > 0) {
+            steps.push({
+                title: "Introduction",
+                content: lessonData.introduction.blocks
+            });
+        }
+
+        if (lessonData.outline && lessonData.outline.blocks && lessonData.outline.blocks.length > 0) {
+            steps.push({
+                title: "Course Outline",
+                content: lessonData.outline.blocks
+            });
+        }
+
+        if (lessonData.chapters && lessonData.chapters.length > 0) {
+            lessonData.chapters.forEach(ch => {
+                steps.push({
+                    title: ch.title,
+                    content: ch.content.blocks
+                });
+            });
+        }
+
+        if (practicalTask && practicalTask.blocks && practicalTask.blocks.length > 0) {
             steps.push({
                 title: "Practical Task",
-                content: practicalTask
+                content: practicalTask.blocks
+            });
+        }
+
+        if (steps.length === 0) {
+            steps.push({
+                title: "Lesson Content",
+                content: [
+                    { type: "text", value: "No lesson content available." }
+                ]
             });
         }
     }
 
-    function renderStep() {
-        document.getElementById("chapterTitle").innerText = steps[currentStep].title;
-        document.getElementById("lessonContent").innerText = steps[currentStep].content;
-
-        document.getElementById("progressText").innerText =
-            `Step ${currentStep + 1} of ${steps.length}`;
-
-        document.getElementById("prevBtn").disabled = currentStep === 0;
-        document.getElementById("nextBtn").disabled = currentStep === steps.length - 1;
+    function getProgressPercent() {
+        return Math.round(((currentStep + 1) / steps.length) * 100);
     }
 
-    function nextStep() {
-        if (currentStep < steps.length - 1) {
-            currentStep++;
-            renderStep();
+    function renderBlocks(blocks) {
+        let html = "";
+
+        blocks.forEach(block => {
+            if (block.type === "text") {
+                html += `<p>${escapeHtml(block.value)}</p>`;
+            } else if (block.type === "image") {
+                html += `<img src="${block.value}" alt="Lesson image" class="img-fluid">`;
+            }
+        });
+
+        return html;
+    }
+
+    async function saveProgress() {
+        try {
+            await fetch("/save_lesson_progress", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    lesson_id: lessonId,
+                    current_step: currentStep,
+                    completed: currentStep === steps.length - 1
+                })
+            });
+        } catch (error) {
+            console.error("Progress save failed:", error);
         }
     }
 
-    function prevStep() {
+    function renderStep() {
+        const titleEl = document.getElementById("chapterTitle");
+        const contentEl = document.getElementById("lessonContent");
+        const progressText = document.getElementById("progressText");
+        const progressPercent = document.getElementById("progressPercent");
+        const progressBar = document.getElementById("progressBar");
+        const completeBox = document.getElementById("completeBox");
+        const footerNote = document.getElementById("footerNote");
+
+        const step = steps[currentStep];
+
+        contentEl.style.opacity = "0";
+
+        setTimeout(() => {
+            titleEl.innerText = step.title;
+            contentEl.innerHTML = renderBlocks(step.content);
+            contentEl.style.opacity = "1";
+
+            progressText.innerText = `Step ${currentStep + 1} of ${steps.length}`;
+            progressPercent.innerText = `${getProgressPercent()}%`;
+            progressBar.style.width = `${getProgressPercent()}%`;
+
+            const atFirst = currentStep === 0;
+            const atLast = currentStep === steps.length - 1;
+
+            document.getElementById("prevBtn").disabled = atFirst;
+            document.getElementById("nextBtn").disabled = atLast;
+            document.getElementById("topPrev").disabled = atFirst;
+            document.getElementById("topNext").disabled = atLast;
+
+            if (atLast) {
+                completeBox.classList.add("show");
+                footerNote.innerText = "You have reached the last section of this lesson.";
+                document.getElementById("nextBtn").innerHTML = "Completed";
+            } else {
+                completeBox.classList.remove("show");
+                footerNote.innerText = "Read through the content, then continue.";
+                document.getElementById("nextBtn").innerHTML = 'Continue <i class="bi bi-arrow-right"></i>';
+            }
+        }, 120);
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    async function nextStep() {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            renderStep();
+            await saveProgress();
+        }
+    }
+
+    async function prevStep() {
         if (currentStep > 0) {
             currentStep--;
             renderStep();
+            await saveProgress();
         }
     }
 
     buildSteps();
+
+    if (savedStep >= 0 && savedStep < steps.length) {
+        currentStep = savedStep;
+    } else {
+        currentStep = 0;
+    }
+
     renderStep();
 </script>
 

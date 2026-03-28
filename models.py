@@ -15,6 +15,7 @@ class User(Base):
 
     profile = relationship("StudentProfile", back_populates="user", uselist=False)
     lessons = relationship("Lesson", back_populates="teacher")
+    lesson_progress = relationship("LessonProgress", back_populates="user", cascade="all, delete-orphan")
 
 
 class Course(Base):
@@ -37,7 +38,7 @@ class Module(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     course = relationship("Course", back_populates="modules")
-    lessons = relationship("Lesson", back_populates="module")
+    lessons = relationship("Lesson", back_populates="module", order_by="Lesson.lesson_order")
 
 
 class StudentProfile(Base):
@@ -64,10 +65,34 @@ class Lesson(Base):
     module_id = Column(Integer, ForeignKey("modules.id"), nullable=False)
 
     title = Column(String(200), nullable=False)
-    content = Column(Text, nullable=False)
+
+    # Old plain content (keep for compatibility if you want)
+    content = Column(Text, nullable=True)
+
+    # Store parsed DOCX sections as JSON string
+    lesson_data = Column(Text, nullable=True)
+
+    # Store practical task as JSON string too
     practical_task = Column(Text, nullable=True)
+
     lesson_order = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     teacher = relationship("User", back_populates="lessons")
     module = relationship("Module", back_populates="lessons")
+    progress_records = relationship("LessonProgress", back_populates="lesson", cascade="all, delete-orphan")
+
+
+class LessonProgress(Base):
+    __tablename__ = "lesson_progress"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+
+    current_step = Column(Integer, default=0)
+    completed = Column(Integer, default=0)  # 0 = not completed, 1 = completed
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", back_populates="lesson_progress")
+    lesson = relationship("Lesson", back_populates="progress_records")
