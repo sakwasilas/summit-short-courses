@@ -3,85 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Lesson</title>
+    <title>{{ lesson.title }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
-        body {
-            background-color: #f4f6f9;
-        }
-
-        .lesson-card {
-            max-width: 950px;
-            margin: 40px auto;
-            border-radius: 12px;
-            padding: 30px;
-        }
-
-        .lesson-title {
-            color: #4e73df;
-            font-weight: bold;
-        }
-
-        .content-box {
-            white-space: pre-line;
-            line-height: 1.8;
-            color: #444;
-            font-size: 16px;
-        }
-
-        .task-box {
-            background-color: #f8f9fa;
-            border-left: 5px solid #4e73df;
-            padding: 15px;
-            border-radius: 8px;
-        }
+        body { background: #f5f6fa; font-family: Arial, sans-serif; }
+        .container { max-width: 1000px; margin-top: 30px; }
+        .lesson-card { background: #fff; border-radius: 10px; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .lesson-title { font-size: 28px; color: #1697da; font-weight: bold; margin-bottom: 20px; }
+        .chapter-title { font-size: 22px; color: #2d3436; margin-top: 25px; margin-bottom: 10px; }
+        .lesson-content { line-height: 1.8; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table, th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f1f2f6; }
+        img { max-width: 100%; margin: 15px 0; }
+        .sidebar { background: #f1f2f6; padding: 15px; border-radius: 10px; }
+        .menu-link { display: block; padding: 8px 12px; margin-bottom: 5px; background: #fff; border-radius: 6px; text-decoration: none; color: #2d3436; }
+        .menu-link.active { background: #1697da; color: #fff; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card shadow lesson-card">
-        <h2 class="lesson-title">{{ lesson.lesson_order }}. {{ lesson.title }}</h2>
-        <p><strong>Course:</strong> {{ lesson.module.course.name }}</p>
-        <p><strong>Module:</strong> {{ lesson.module.name }}</p>
-        <p><strong>Added On:</strong> {{ lesson.created_at.strftime("%Y-%m-%d") }}</p>
+<div class="container d-flex gap-4">
 
-        <hr>
+    <!-- Sidebar: Lessons -->
+    <div class="sidebar flex-shrink-0" style="width:250px;">
+        <h5>Lessons Menu</h5>
+        {% for item in modules_with_lessons %}
+            <strong>{{ item.module.name }}</strong>
+            {% for l in item.lessons %}
+                <a href="{{ url_for('view_lesson', lesson_id=l.id) }}"
+                   class="menu-link {% if l.id == lesson.id %}active{% endif %}">
+                    {{ l.title }}
+                </a>
+            {% endfor %}
+        {% endfor %}
+    </div>
 
-        <div class="content-box">
-            {{ lesson.content }}
-        </div>
+    <!-- Main Content -->
+    <div class="flex-grow-1">
+        <div class="lesson-card">
 
-        <hr>
+            <!-- Lesson Title -->
+            <div class="lesson-title">{{ lesson.title }}</div>
 
-        <h5>Practical Task</h5>
-        <div class="task-box">
-            {{ lesson.practical_task if lesson.practical_task else "No practical task added yet." }}
-        </div>
-
-        <div class="d-flex justify-content-between mt-4">
-            <div>
-                {% if previous_lesson %}
-                    <a href="{{ url_for('view_lesson', lesson_id=previous_lesson.id) }}" class="btn btn-secondary">
-                        Previous
-                    </a>
-                {% endif %}
+            <!-- Introduction -->
+            <div class="chapter-title">Introduction</div>
+            <div class="lesson-content">
+                <p><strong>Course Title:</strong> Introduction to Python Programming</p>
+                <p><strong>Instructor:</strong> SILAS SAKWA</p>
+                <p><strong>Course Objectives:</strong></p>
+                <ol>
+                    <li>Understand what Python is and why it is useful.</li>
+                    <li>Learn the basic syntax and structure of Python programs.</li>
+                </ol>
             </div>
 
-            <div>
-                <a href="{{ url_for('view_module_lessons', module_id=lesson.module.id) }}" class="btn btn-dark">
-                    Back to Module
-                </a>
+            <!-- Practical Task -->
+            {% if lesson.practical_task %}
+            <div class="chapter-title">Practical Task</div>
+            <div class="lesson-content">
+                {{ lesson.practical_task | safe }}
+            </div>
+            {% endif %}
+
+            <!-- Chapters -->
+            {% if lesson_data and lesson_data.chapters %}
+                {% for chapter in lesson_data.chapters %}
+                    <div class="chapter-title">{{ chapter.title }}</div>
+                    <div class="lesson-content">
+                        {{ chapter.content | safe }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                {% if previous_lesson %}
+                    <a href="{{ url_for('view_lesson', lesson_id=previous_lesson.id) }}" class="btn btn-secondary">Previous</a>
+                {% else %}
+                    <button class="btn btn-secondary" disabled>Previous</button>
+                {% endif %}
 
                 {% if next_lesson %}
-                    <a href="{{ url_for('view_lesson', lesson_id=next_lesson.id) }}" class="btn btn-primary">
-                        Next
-                    </a>
+                    <a href="{{ url_for('view_lesson', lesson_id=next_lesson.id) }}" class="btn btn-primary">Next</a>
+                {% else %}
+                    <button class="btn btn-primary" disabled>Next</button>
                 {% endif %}
             </div>
+
         </div>
     </div>
+
 </div>
 
 </body>

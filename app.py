@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from connections import SessionLocal
 from models import User,StudentProfile,Lesson,Course,Module
+import json
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -244,6 +245,8 @@ def teacher_dashboard():
         db.close()
 
 
+import json  # 🔥 add this at the top of your file
+
 @app.route("/add_lesson/<int:module_id>", methods=["GET", "POST"])
 def add_lesson(module_id):
     if "user_id" not in session or session.get("role") != "teacher":
@@ -260,17 +263,36 @@ def add_lesson(module_id):
 
         if request.method == "POST":
             title = request.form["title"]
-            content = request.form["content"]
-            practical_task = request.form["practical_task"]
-            lesson_order = request.form["lesson_order"]
+
+            # ✅ NEW FIELDS
+            introduction = request.form["introduction"]
+            outline = request.form["outline"]
+
+            chapter_titles = request.form.getlist("chapter_title[]")
+            chapter_contents = request.form.getlist("chapter_content[]")
+
+            # ✅ Build chapters list
+            chapters = []
+            for i in range(len(chapter_titles)):
+                chapters.append({
+                    "title": chapter_titles[i],
+                    "content": chapter_contents[i]
+                })
+
+            # ✅ Combine everything
+            content_data = {
+                "introduction": introduction,
+                "outline": outline,
+                "chapters": chapters
+            }
 
             lesson = Lesson(
                 teacher_id=session["user_id"],
                 module_id=module.id,
                 title=title,
-                content=content,
-                practical_task=practical_task,
-                lesson_order=lesson_order
+                content=json.dumps(content_data),  # 🔥 STORE JSON
+                practical_task=request.form["practical_task"],
+                lesson_order=request.form["lesson_order"]
             )
 
             db.add(lesson)
@@ -280,6 +302,7 @@ def add_lesson(module_id):
             return redirect(url_for("teacher_dashboard"))
 
         return render_template("teacher/add_lesson.html", module=module)
+
     finally:
         db.close()
     
@@ -344,6 +367,8 @@ def view_module_lessons(module_id):
     finally:
         db.close()
 
+import json
+
 @app.route("/view_lesson/<int:lesson_id>")
 def view_lesson(lesson_id):
     if "user_id" not in session:
@@ -396,11 +421,41 @@ def view_lesson(lesson_id):
             .first()
         )
 
+        modules = db.query(Module).filter_by(course_id=profile.course_id).order_by(Module.id.asc()).all()
+
+        modules_with_lessons = []
+        for mod in modules:
+            lessons = (
+                db.query(Lesson)
+                .filter_by(module_id=mod.id)
+                .order_by(Lesson.lesson_order.asc())
+                .all()
+            )
+
+            modules_with_lessons.append({
+                "module": mod,
+                "lessons": lessons
+            })
+
+        # 🔹 FIX: Prepare lesson_data safely for JSON
+        try:
+            # Assuming new lessons have JSON content
+            lesson_data = json.loads(lesson.content)
+        except (TypeError, json.JSONDecodeError):
+            # Old lessons fallback: treat full text as "introduction"
+            lesson_data = {
+                "introduction": lesson.content or "",
+                "outline": "",
+                "chapters": []
+            }
+
         return render_template(
             "users/view_lesson.html",
             lesson=lesson,
+            lesson_data=lesson_data,  # ✅ pass this to template
             previous_lesson=previous_lesson,
-            next_lesson=next_lesson
+            next_lesson=next_lesson,
+            modules_with_lessons=modules_with_lessons
         )
     finally:
         db.close()
